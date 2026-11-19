@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pymupdf
+python-docx
+google-genai
+python-dotenv
+httpx
+rapidfuzz
