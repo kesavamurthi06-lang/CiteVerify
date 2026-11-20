@@ -39,7 +39,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/documents/extract",
+        "https://citeverify-wivv.onrender.com",
         {
           method: "POST",
           body: formData,
@@ -77,7 +77,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/research/search?query=${encodeURIComponent(
+        `https://citeverify-wivv.onrender.com${encodeURIComponent(
           searchQuery
         )}`
       );
@@ -110,7 +110,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/documents/extract-claims",
+        "https://citeverify-wivv.onrender.com",
         {
           method: "POST",
           body: formData,
