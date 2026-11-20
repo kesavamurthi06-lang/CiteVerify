@@ -34,7 +34,7 @@ app.add_middleware(
         "http://127.0.0.1:5173",
     ],
     allow_credentials=True,
-    allow_methods=[""],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -347,5 +347,33 @@ async def verify_scientific_claim(data: dict):
         raise HTTPException(
             status_code=500,
             detail=f"Verification failed: {str(error)}"
-        )    
+        )
+
+@app.get("/api/research/search")
+async def academic_research_discovery(query: str):
+
+    if not query.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Research topic is required."
+        )
+
+    try:
+
+        papers = await search_research_papers(query)
+
+        return {
+            "success": True,
+            "query": query,
+            "total_results": len(papers),
+            "papers": papers
+        }
+
+    except Exception as error:
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Research discovery failed: {str(error)}"
+        )
+        
 
