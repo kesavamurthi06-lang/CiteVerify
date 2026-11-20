@@ -111,40 +111,73 @@ function App() {
   };
 
   // STEP 8: AI SCIENTIFIC CLAIM EXTRACTION
-  const handleClaimExtraction = async () => {
-    if (!file) return;
+  
+const handleClaimExtraction = async () => {
+  if (!file) {
+    setError("Please upload a research document first.");
+    return;
+  }
 
-    setClaimLoading(true);
-    setError("");
-    setClaims([]);
+  if (claimLoading) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+  setClaimLoading(true);
+  setError("");
+  setClaims([]);
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
 
     try {
       const response = await fetch(
-        "https://citeverify-3qoo.onrender.com/api/claims/extract",
+        "https://citeverify-3qoo.onrender.com/api/documents/extract-claims",
         {
           method: "POST",
           body: formData,
+          signal: controller.signal,
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || "Claim extraction failed.");
+        throw new Error(
+          data.detail || "Claim extraction failed."
+        );
       }
 
-      const extractedClaims = data.claims || [];
+      const extractedClaims = Array.isArray(data.claims)
+        ? data.claims
+        : [];
+
       setClaims(extractedClaims);
-      setTotalClaims((prev) => prev + extractedClaims.length);
-    } catch (err) {
-      setError(err.message);
+
+      if (extractedClaims.length === 0) {
+        setError(
+          "No scientific claims were identified in this document."
+        );
+      } else {
+        setTotalClaims(prev => prev + extractedClaims.length);
+      }
+
     } finally {
-      setClaimLoading(false);
+      clearTimeout(timeout);
     }
-  };
+
+  } catch (err) {
+    setError(
+      err.name === "AbortError"
+        ? "Request timed out. Please try again."
+        : err.message || "Unable to extract scientific claims."
+    );
+  } finally {
+    setClaimLoading(false);
+  }
+};
+
 
   // FILE VALIDATION
   const handleFile = (selectedFile) => {
