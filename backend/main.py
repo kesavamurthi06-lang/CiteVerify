@@ -10,7 +10,6 @@ from services.citation_matcher import match_citations
 
 from services.paper_retriever import search_research_papers
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 import pymupdf
@@ -30,12 +29,12 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://cite-verify-gamma.vercel.app/"
+        "https://cite-verify-gamma.vercel.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ],
     allow_credentials=True,
-    allow_methods=[""],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
