@@ -60,7 +60,7 @@ function App() {
         wordCount: data.word_count,
       });
       setVerified(true);
-      setTotalDocuments((prev)=>prev+1)
+      setTotalDocuments((prev) => prev + 1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -70,15 +70,21 @@ function App() {
 
   // ACADEMIC RESEARCH SEARCH
   const handleResearchSearch = async () => {
-    if (!searchQuery.trim()) return;
+    const query = searchQuery.trim();
+
+    if (!query) {
+      setError("Please enter a research topic.");
+      return;
+    }
 
     setSearchLoading(true);
     setError("");
+    setResearchResults([]);
 
     try {
       const response = await fetch(
         `https://citeverify-3qoo.onrender.com/api/research/search?query=${encodeURIComponent(
-          searchQuery
+          query
         )}`
       );
 
@@ -88,10 +94,17 @@ function App() {
         throw new Error(data.detail || "Research search failed.");
       }
 
-      const combined = [...data.results.crossref, ...data.results.openalex];
+      const crossref = Array.isArray(data.crossref) ? data.crossref : [];
+      const openalex = Array.isArray(data.openalex) ? data.openalex : [];
+      const combined = [...crossref, ...openalex];
+
       setResearchResults(combined);
+
+      if (combined.length === 0) {
+        setError("No research papers found. Try another topic.");
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Unable to retrieve research papers.");
     } finally {
       setSearchLoading(false);
     }
@@ -110,7 +123,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "https://citeverify-3qoo.onrender.com/api/research/search",
+        "https://citeverify-3qoo.onrender.com/api/claims/extract",
         {
           method: "POST",
           body: formData,
@@ -123,9 +136,9 @@ function App() {
         throw new Error(data.detail || "Claim extraction failed.");
       }
 
-      const extractedClaims=data.claims||[];
+      const extractedClaims = data.claims || [];
       setClaims(extractedClaims);
-      setTotalClaims((prev)=>prev+extractedClaims.length)
+      setTotalClaims((prev) => prev + extractedClaims.length);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -165,6 +178,8 @@ function App() {
     setDragging(false);
     handleFile(e.dataTransfer.files[0]);
   };
+
+  const detectedCitationsCount = claims.filter((c) => c.citation).length;
 
   return (
     <div className="app">
@@ -227,25 +242,25 @@ function App() {
         <section className="stats">
           <div className="stat-card">
             <span>Total Documents</span>
-            <h2>--</h2>
+            <h2>{totalDocuments || "--"}</h2>
             <small>Documents uploaded</small>
           </div>
 
           <div className="stat-card">
             <span>Claims Detected</span>
-            <h2>{claims.length || "--"}</h2>
+            <h2>{totalClaims || claims.length || "--"}</h2>
             <small>Scientific statements</small>
           </div>
 
           <div className="stat-card">
             <span>Citations Found</span>
-            <h2>--</h2>
+            <h2>{detectedCitationsCount || "--"}</h2>
             <small>References identified</small>
           </div>
 
           <div className="stat-card">
             <span>Verified Claims</span>
-            <h2>--</h2>
+            <h2>{verifiedClaims || "--"}</h2>
             <small>Evidence assessment pending</small>
           </div>
         </section>
@@ -404,7 +419,7 @@ function App() {
                   </div>
 
                   <div>
-                    <strong>{documentInfo.fileType.toUpperCase()}</strong>
+                    <strong>{documentInfo.fileType?.toUpperCase()}</strong>
                     <span>File Type</span>
                   </div>
                 </div>
@@ -491,7 +506,9 @@ function App() {
               <h2>Verification Overview</h2>
               <p>Claim classification results will appear here.</p>
             </div>
-            <span className="pending-label">AWAITING DOCUMENT</span>
+            <span className="pending-label">
+              {verified ? "DOCUMENT VERIFIED" : "AWAITING DOCUMENT"}
+            </span>
           </div>
 
           <div className="result-grid">
