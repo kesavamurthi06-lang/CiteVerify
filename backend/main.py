@@ -349,31 +349,38 @@ async def verify_scientific_claim(data: dict):
             detail=f"Verification failed: {str(error)}"
         )
 
+
+# ACADEMIC RESEARCH DISCOVERY API
+
 @app.get("/api/research/search")
 async def academic_research_discovery(query: str):
 
-    if not query.strip():
+    query = query.strip()
+
+    if not query:
         raise HTTPException(
             status_code=400,
             detail="Research topic is required."
         )
 
     try:
+        results = await search_research_papers(query)
 
-        papers = await search_research_papers(query)
+        crossref = results.get("crossref", [])
+        openalex = results.get("openalex", [])
 
         return {
             "success": True,
             "query": query,
-            "total_results": len(papers),
-            "papers": papers
+            "crossref": crossref,
+            "openalex": openalex,
+            "total_results": len(crossref) + len(openalex)
         }
 
     except Exception as error:
-
         raise HTTPException(
             status_code=500,
             detail=f"Research discovery failed: {str(error)}"
         )
-        
+
 
