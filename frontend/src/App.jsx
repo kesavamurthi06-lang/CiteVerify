@@ -39,7 +39,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "https://citeverify-wivv.onrender.com",
+        "https://citeverify-3qoo.onrender.com",
         {
           method: "POST",
           body: formData,
@@ -77,7 +77,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `https://citeverify-wivv.onrender.com${encodeURIComponent(
+        `https://citeverify-3qoo.onrender.com${encodeURIComponent(
           searchQuery
         )}`
       );
@@ -110,7 +110,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "https://citeverify-wivv.onrender.com",
+        "https://citeverify-3qoo.onrender.com",
         {
           method: "POST",
           body: formData,
